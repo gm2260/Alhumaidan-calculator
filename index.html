@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>حاسبة اشتراكات اجتماع عائلة الحميدان</title>
+  <title>إجتماع أسرة عائلة الحميدان</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -92,7 +92,67 @@
       font-weight: 700;
       color: var(--primary);
       letter-spacing: -0.5px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    /* Event Details Card */
+    .event-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      margin: 0 auto 16px;
+      max-width: 760px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 14px 22px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .event-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .event-item svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .event-map-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-surface);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid rgba(27, 67, 50, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .event-map-link:hover {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .event-map-link svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
     }
 
     .greeting-card {
@@ -595,8 +655,32 @@
         </svg>
         <span>عائلة الحميدان</span>
       </div>
-      <h1>حاسبة اشتراكات اجتماع الأسرة</h1>
+      <h1>إجتماع أسرة عائلة الحميدان</h1>
       
+      <!-- Event Details Card -->
+      <div class="event-card">
+        <div class="event-item">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+          </svg>
+          <span>يوم الخميس الموافق ١٤٤٨/٥/٤ ه</span>
+        </div>
+
+        <div class="event-item">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
+          </svg>
+          <span>في قاعة غناتي</span>
+        </div>
+
+        <a href="https://maps.app.goo.gl/ThDxkX43xCQwRuti7" target="_blank" rel="noopener" class="event-map-link">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+          <span>للوصول إلى الموقع</span>
+        </a>
+      </div>
+
       <div class="greeting-card">
         <p>« عزوتي.. السلام عليكم ورحمة الله وبركاته.. وأقول: إليكم مقدار الاشتراك الجديد بعد إلغاء الاجتماع الرابع »</p>
         <span class="sub-note">يمكنكم تحديد عدد الأفراد لكل فئة لحساب الإجمالي بدقة وتجهيز التقرير للمشاركة.</span>
@@ -677,11 +761,16 @@
     // Definition of categories according to family message
     const categories = [
       {
-        id: 'father_mother',
-        title: 'الأب وزوجته',
-        desc: '150 للفرد',
-        price: 300,
-        isFather: true
+        id: 'father',
+        title: 'الأب',
+        desc: 'اشتراك رب الأسرة',
+        price: 150
+      },
+      {
+        id: 'wives',
+        title: 'الزوجة \\ الزوجات',
+        desc: '150 ريال لكل زوجة',
+        price: 150
       },
       {
         id: 'single_son_daughter',
@@ -715,18 +804,6 @@
       }
     ];
 
-    // Father calculation logic:
-    // count 1: 300
-    // count 2: 450
-    // count 3: 600
-    // count n: 150 + (n * 150), persons: n + 1
-    function getFatherCalculation(count) {
-      if (count <= 0) return { price: 0, persons: 0 };
-      const price = 150 + (count * 150);
-      const persons = count + 1;
-      return { price, persons };
-    }
-
     // State storage
     const state = {
       name: '',
@@ -756,12 +833,14 @@
             document.getElementById('familyHeadName').value = parsed.name;
           }
         } else {
-          // Default father to 1 as in the original layout
-          state.counts['father_mother'] = 1;
+          // Default father to 1 and wives to 1
+          state.counts['father'] = 1;
+          state.counts['wives'] = 1;
         }
       } catch (e) {
         console.error('Failed to load state', e);
-        state.counts['father_mother'] = 1;
+        state.counts['father'] = 1;
+        state.counts['wives'] = 1;
       }
     }
 
@@ -782,22 +861,11 @@
         card.className = `category-card ${count > 0 ? 'has-value' : ''}`;
         card.id = `card-${cat.id}`;
 
-        let priceDisplay = '';
-        if (cat.isFather) {
-          if (count > 1) {
-            priceDisplay = `${getFatherCalculation(count).price} ريال`;
-          } else {
-            priceDisplay = '300 ريال';
-          }
-        } else {
-          priceDisplay = `${cat.price} ريال`;
-        }
-
         card.innerHTML = `
           <div class="category-info">
             <div class="category-title">
               <span>${cat.title}</span>
-              <span class="rate-tag" id="tag-${cat.id}">${priceDisplay}</span>
+              <span class="rate-tag" id="tag-${cat.id}">${cat.price} ريال</span>
             </div>
             <div class="category-desc">${cat.desc}</div>
           </div>
@@ -828,15 +896,6 @@
       const input = document.getElementById(`input-${id}`);
       if (input) input.value = next;
 
-      // Update price tag if father card
-      if (id === 'father_mother') {
-        const tag = document.getElementById(`tag-${id}`);
-        const calc = getFatherCalculation(next);
-        if (tag) {
-          tag.textContent = next > 1 ? `${calc.price} ريال` : '300 ريال';
-        }
-      }
-
       // Update card style
       const card = document.getElementById(`card-${id}`);
       if (card) {
@@ -857,14 +916,6 @@
       const input = document.getElementById(`input-${id}`);
       if (input) input.value = val;
 
-      if (id === 'father_mother') {
-        const tag = document.getElementById(`tag-${id}`);
-        const calc = getFatherCalculation(val);
-        if (tag) {
-          tag.textContent = val > 1 ? `${calc.price} ريال` : '300 ريال';
-        }
-      }
-
       const card = document.getElementById(`card-${id}`);
       if (card) {
         if (val > 0) card.classList.add('has-value');
@@ -884,27 +935,15 @@
       categories.forEach(cat => {
         const count = state.counts[cat.id] || 0;
         if (count > 0) {
-          if (cat.isFather) {
-            const calc = getFatherCalculation(count);
-            totalAmount += calc.price;
-            totalPersons += calc.persons;
+          const itemSubtotal = count * cat.price;
+          totalAmount += itemSubtotal;
+          totalPersons += count;
 
-            breakdownItems.push({
-              title: cat.title,
-              subtext: count > 1 ? `الكمية: ${count} (150 للفرد)` : `150 للفرد`,
-              subtotal: calc.price
-            });
-          } else {
-            const itemSubtotal = count * cat.price;
-            totalAmount += itemSubtotal;
-            totalPersons += count;
-
-            breakdownItems.push({
-              title: cat.title,
-              subtext: `${count} × ${cat.price} ريال`,
-              subtotal: itemSubtotal
-            });
-          }
+          breakdownItems.push({
+            title: cat.title,
+            subtext: `${count} × ${cat.price} ريال`,
+            subtotal: itemSubtotal
+          });
         }
       });
 
@@ -935,7 +974,9 @@
     function generateReportText() {
       const familyHead = state.name.trim() || 'رب الأسرة';
       let lines = [];
-      lines.push('🌴 *اشتراك اجتماع عائلة الحميدان* 🌴');
+      lines.push('🌴 *إجتماع أسرة عائلة الحميدان* 🌴');
+      lines.push('📅 يوم الخميس الموافق ١٤٤٨/٥/٤ هـ • في قاعة غناتي');
+      lines.push('📍 الموقع: https://maps.app.goo.gl/ThDxkX43xCQwRuti7');
       lines.push('السلام عليكم ورحمة الله وبركاته');
       lines.push('──────────────');
       if (state.name.trim()) {
@@ -950,17 +991,10 @@
         const count = state.counts[cat.id] || 0;
         if (count > 0) {
           hasItems = true;
-          if (cat.isFather) {
-            const calc = getFatherCalculation(count);
-            grandTotal += calc.price;
-            totalCount += calc.persons;
-            lines.push(`▫️ ${cat.title}: (${count}) = ${calc.price} ريال`);
-          } else {
-            const sub = count * cat.price;
-            grandTotal += sub;
-            totalCount += count;
-            lines.push(`▫️ ${cat.title}: (${count}) = ${sub} ريال`);
-          }
+          const sub = count * cat.price;
+          grandTotal += sub;
+          totalCount += count;
+          lines.push(`▫️ ${cat.title}: (${count}) = ${sub} ريال`);
         }
       });
 
