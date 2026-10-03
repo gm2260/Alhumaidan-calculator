@@ -183,6 +183,103 @@
       box-shadow: 0 4px 16px rgba(27, 67, 50, 0.05);
     }
 
+    .category-card.special-card {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .card-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .wives-selection-wrapper {
+      padding-top: 12px;
+      border-top: 1px dashed #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .wives-selection-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .wives-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+    }
+
+    .wife-btn {
+      background: #f8fafc;
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius-sm);
+      padding: 9px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      user-select: none;
+      font-family: var(--font-family);
+    }
+
+    .wife-btn:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .wife-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(27, 67, 50, 0.2);
+    }
+
+    .wife-btn .w-title {
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .wife-btn .w-price {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .wife-btn.active .w-price {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .wife-btn.active .w-title {
+      color: #ffffff;
+    }
+
+    .wives-calc-hint {
+      font-size: 0.82rem;
+      color: var(--primary);
+      background: var(--primary-surface);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.4;
+    }
+
     .category-info {
       flex: 1;
     }
@@ -674,15 +771,63 @@
   <div class="toast" id="toastMessage">تم نسخ تفاصيل الاشتراك بنجاح ✓</div>
 
   <script>
-    // Definition of categories according to family message
-    const categories = [
-      {
-        id: 'father_mother',
-        title: 'الأب وزوجته',
-        desc: 'اشتراك الوالدين معاً',
-        price: 300,
-        unit: 'عائلة'
-      },
+    // Configuration for Father & Wives options
+    const fatherWivesConfig = {
+      options: [
+        {
+          key: 'none',
+          label: 'غير مشمول',
+          title: 'غير مشمول',
+          persons: 0,
+          price: 0,
+          desc: 'لم يتم احتساب اشتراك للأب أو الزوجات'
+        },
+        {
+          key: 'father_only',
+          label: 'الأب فقط',
+          title: 'الأب فقط (بدون زوجة)',
+          persons: 1,
+          price: 150,
+          desc: 'اشتراك الأب فقط (150 ريال) - فرد واحد'
+        },
+        {
+          key: '1',
+          label: 'الأب + زوجة واحدة',
+          title: 'الأب وزوجته',
+          persons: 2,
+          price: 300,
+          desc: 'اشتراك الأب (150 ريال) + زوجة واحدة (150 ريال) = 300 ريال'
+        },
+        {
+          key: '2',
+          label: 'الأب + زوجتان',
+          badge: '',
+          title: 'الأب وزوجتان',
+          persons: 3,
+          price: 450,
+          desc: 'اشتراك الأب (150 ريال) + الزوجة الأولى (150 ريال) + الزوجة الثانية (150 ريال) = 450 ريال'
+        },
+        {
+          key: '3',
+          label: 'الأب + 3 زوجات',
+          title: 'الأب و 3 زوجات',
+          persons: 4,
+          price: 600,
+          desc: 'اشتراك الأب (150 ريال) + 3 زوجات (450 ريال) = 600 ريال'
+        },
+        {
+          key: '4',
+          label: 'الأب + 4 زوجات',
+          title: 'الأب و 4 زوجات',
+          persons: 5,
+          price: 750,
+          desc: 'اشتراك الأب (150 ريال) + 4 زوجات (600 ريال) = 750 ريال'
+        }
+      ]
+    };
+
+    // Definition of other standard categories according to family message
+    const standardCategories = [
       {
         id: 'single_son_daughter',
         title: 'الابن أو الابنة',
@@ -723,22 +868,26 @@
     // State storage
     const state = {
       name: '',
+      fatherWives: 'none',
       counts: {}
     };
 
-    // Initialize counts
-    categories.forEach(cat => {
+    // Initialize counts for standard categories
+    standardCategories.forEach(cat => {
       state.counts[cat.id] = 0;
     });
 
     // LocalStorage keys
-    const STORAGE_KEY = 'humaidan_calc_state';
+    const STORAGE_KEY = 'humaidan_calc_state_v2';
 
     function loadState() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
+          if (parsed.fatherWives !== undefined) {
+            state.fatherWives = parsed.fatherWives;
+          }
           if (parsed.counts) {
             Object.keys(parsed.counts).forEach(k => {
               if (state.counts[k] !== undefined) {
@@ -762,17 +911,61 @@
       } catch (e) {}
     }
 
-    // Number conversion to Arabic-Indic digits if needed or clean display
-    function formatNumber(num) {
-      return num.toLocaleString('ar-SA');
-    }
-
-    // Render category cards
+    // Render all category cards
     function renderCategories() {
       const container = document.getElementById('categoriesContainer');
       container.innerHTML = '';
 
-      categories.forEach(cat => {
+      // 1. Render Father & Wives Special Card
+      const currentOpt = fatherWivesConfig.options.find(o => o.key === state.fatherWives) || fatherWivesConfig.options[0];
+      const isFatherActive = currentOpt.key !== 'none';
+
+      const fatherCard = document.createElement('div');
+      fatherCard.className = `category-card special-card ${isFatherActive ? 'has-value' : ''}`;
+      fatherCard.id = 'card-father_wives';
+
+      fatherCard.innerHTML = `
+        <div class="card-top-row">
+          <div class="category-info">
+            <div class="category-title">
+              <span>الأب وزوجته (أو الزوجات)</span>
+              <span class="rate-tag" id="fatherTag">${currentOpt.price > 0 ? currentOpt.price + ' ريال' : '٣٠٠ ريال الأساس'}</span>
+            </div>
+            <div class="category-desc">اشتراك رب الأسرة (150 ريال) + 150 ريال لكل زوجة</div>
+          </div>
+        </div>
+
+        <div class="wives-selection-wrapper">
+          <div class="wives-selection-label">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+            <span>اختر حالة رب الأسرة وعدد الزوجات:</span>
+          </div>
+
+          <div class="wives-grid">
+            ${fatherWivesConfig.options.map(opt => `
+              <button type="button" 
+                      class="wife-btn ${opt.key === state.fatherWives ? 'active' : ''}" 
+                      onclick="selectFatherOption('${opt.key}')">
+                <span class="w-title">
+                  ${opt.label}
+                  ${opt.badge ? `<span style="font-size:0.7rem; background:#fef3c7; color:#92400e; padding:1px 5px; border-radius:4px; margin-right:3px;">${opt.badge}</span>` : ''}
+                </span>
+                <span class="w-price">${opt.price} ريال</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <div class="wives-calc-hint" id="fatherCalcHint">
+            💡 ${currentOpt.desc}
+          </div>
+        </div>
+      `;
+      container.appendChild(fatherCard);
+
+      // 2. Render Standard Categories
+      standardCategories.forEach(cat => {
         const count = state.counts[cat.id] || 0;
         const card = document.createElement('div');
         card.className = `category-card ${count > 0 ? 'has-value' : ''}`;
@@ -803,17 +996,23 @@
       });
     }
 
+    // Select Father & Wives option
+    window.selectFatherOption = function(key) {
+      state.fatherWives = key;
+      saveState();
+      renderCategories();
+      updateSummary();
+    };
+
     // Update count via + and -
     window.updateCount = function(id, delta) {
       const current = state.counts[id] || 0;
       const next = Math.max(0, current + delta);
       state.counts[id] = next;
 
-      // Update input
       const input = document.getElementById(`input-${id}`);
       if (input) input.value = next;
 
-      // Update card style
       const card = document.getElementById(`card-${id}`);
       if (card) {
         if (next > 0) card.classList.add('has-value');
@@ -849,23 +1048,29 @@
       let totalPersons = 0;
       const breakdownItems = [];
 
-      categories.forEach(cat => {
+      // 1. Father & Wives
+      const fatherOpt = fatherWivesConfig.options.find(o => o.key === state.fatherWives);
+      if (fatherOpt && fatherOpt.price > 0) {
+        totalAmount += fatherOpt.price;
+        totalPersons += fatherOpt.persons;
+        breakdownItems.push({
+          title: fatherOpt.title,
+          subtext: `${fatherOpt.persons} أفراد • ${fatherOpt.desc.split('=')[0]}`,
+          subtotal: fatherOpt.price
+        });
+      }
+
+      // 2. Standard categories
+      standardCategories.forEach(cat => {
         const count = state.counts[cat.id] || 0;
         if (count > 0) {
           const itemSubtotal = count * cat.price;
           totalAmount += itemSubtotal;
-          
-          // If Father & Mother, calculate as 2 persons or 1 household
-          if (cat.id === 'father_mother') {
-            totalPersons += count * 2;
-          } else {
-            totalPersons += count;
-          }
+          totalPersons += count;
 
           breakdownItems.push({
             title: cat.title,
-            count: count,
-            price: cat.price,
+            subtext: `${count} × ${cat.price} ريال`,
             subtotal: itemSubtotal
           });
         }
@@ -886,7 +1091,7 @@
           <div class="breakdown-item">
             <div>
               <div class="item-label">${item.title}</div>
-              <div class="item-subtext">${item.count} × ${item.price} ريال</div>
+              <div class="item-subtext">${item.subtext}</div>
             </div>
             <div class="item-total">${item.subtotal.toLocaleString('en-US')} ريال</div>
           </div>
@@ -909,14 +1114,23 @@
       let grandTotal = 0;
       let totalCount = 0;
 
-      categories.forEach(cat => {
+      // Father & wives
+      const fatherOpt = fatherWivesConfig.options.find(o => o.key === state.fatherWives);
+      if (fatherOpt && fatherOpt.price > 0) {
+        hasItems = true;
+        grandTotal += fatherOpt.price;
+        totalCount += fatherOpt.persons;
+        lines.push(`▫️ ${fatherOpt.title}: ${fatherOpt.price} ريال (${fatherOpt.persons} أفراد)`);
+      }
+
+      // Standard categories
+      standardCategories.forEach(cat => {
         const count = state.counts[cat.id] || 0;
         if (count > 0) {
           hasItems = true;
           const sub = count * cat.price;
           grandTotal += sub;
-          if (cat.id === 'father_mother') totalCount += count * 2;
-          else totalCount += count;
+          totalCount += count;
           lines.push(`▫️ ${cat.title}: (${count}) = ${sub} ريال`);
         }
       });
@@ -986,9 +1200,10 @@
     // Reset button
     document.getElementById('resetBtn').addEventListener('click', () => {
       if (confirm('هل تريد إعادة تعيين جميع الحقول؟')) {
-        categories.forEach(cat => {
+        standardCategories.forEach(cat => {
           state.counts[cat.id] = 0;
         });
+        state.fatherWives = 'none';
         state.name = '';
         document.getElementById('familyHeadName').value = '';
         saveState();
