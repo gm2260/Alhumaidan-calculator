@@ -716,18 +716,15 @@
     ];
 
     // Father calculation logic:
-    // count 1: 300 (الأب وزوجته, 2 persons)
-    // count 2: 450 (الأب وزوجتان, 3 persons)
-    // count 3: 600 (الأب و 3 زوجات, 4 persons)
+    // count 1: 300
+    // count 2: 450
+    // count 3: 600
     // count n: 150 + (n * 150), persons: n + 1
     function getFatherCalculation(count) {
-      if (count <= 0) return { price: 0, persons: 0, title: 'الأب وزوجته' };
+      if (count <= 0) return { price: 0, persons: 0 };
       const price = 150 + (count * 150);
       const persons = count + 1;
-      let title = 'الأب وزوجته';
-      if (count === 2) title = 'الأب وزوجتان';
-      else if (count >= 3) title = `الأب و ${count} زوجات`;
-      return { price, persons, title };
+      return { price, persons };
     }
 
     // State storage
@@ -799,7 +796,7 @@
         card.innerHTML = `
           <div class="category-info">
             <div class="category-title">
-              <span id="title-${cat.id}">${cat.isFather && count > 1 ? getFatherCalculation(count).title : cat.title}</span>
+              <span>${cat.title}</span>
               <span class="rate-tag" id="tag-${cat.id}">${priceDisplay}</span>
             </div>
             <div class="category-desc">${cat.desc}</div>
@@ -831,16 +828,12 @@
       const input = document.getElementById(`input-${id}`);
       if (input) input.value = next;
 
-      // Update tag and title if father card
+      // Update price tag if father card
       if (id === 'father_mother') {
         const tag = document.getElementById(`tag-${id}`);
-        const titleSpan = document.getElementById(`title-${id}`);
         const calc = getFatherCalculation(next);
         if (tag) {
           tag.textContent = next > 1 ? `${calc.price} ريال` : '300 ريال';
-        }
-        if (titleSpan) {
-          titleSpan.textContent = next > 1 ? calc.title : 'الأب وزوجته';
         }
       }
 
@@ -866,13 +859,9 @@
 
       if (id === 'father_mother') {
         const tag = document.getElementById(`tag-${id}`);
-        const titleSpan = document.getElementById(`title-${id}`);
         const calc = getFatherCalculation(val);
         if (tag) {
           tag.textContent = val > 1 ? `${calc.price} ريال` : '300 ريال';
-        }
-        if (titleSpan) {
-          titleSpan.textContent = val > 1 ? calc.title : 'الأب وزوجته';
         }
       }
 
@@ -900,14 +889,9 @@
             totalAmount += calc.price;
             totalPersons += calc.persons;
 
-            let subtext = '';
-            if (count === 1) subtext = 'الأب وزوجته (فردين)';
-            else if (count === 2) subtext = 'الأب وزوجتان (3 أفراد)';
-            else subtext = `الأب و ${count} زوجات (${calc.persons} أفراد)`;
-
             breakdownItems.push({
-              title: calc.title,
-              subtext: subtext,
+              title: cat.title,
+              subtext: count > 1 ? `الكمية: ${count}` : `اشتراك الوالدين معاً`,
               subtotal: calc.price
             });
           } else {
@@ -970,7 +954,7 @@
             const calc = getFatherCalculation(count);
             grandTotal += calc.price;
             totalCount += calc.persons;
-            lines.push(`▫️ ${calc.title}: ${calc.price} ريال (${calc.persons} أفراد)`);
+            lines.push(`▫️ ${cat.title}: (${count}) = ${calc.price} ريال`);
           } else {
             const sub = count * cat.price;
             grandTotal += sub;
